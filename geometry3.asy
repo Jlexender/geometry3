@@ -15,11 +15,6 @@ path3 height(triple P, triple A, triple B) {
     return P -- (A + dot(P - A, B - A) / dot(B - A, B - A) * (B - A));
 }
 
-// Returns an orthocenter point in triangle ABC
-triple orthocenter(triple A, triple B, triple C) {
-    return intersectionpoint(height(A, B, C), height(B, A, C));
-}
-
 // Returns point on AB in specified ratio t
 path3 ratioPoint(triple A, triple B, real t = 1.0) {
     return (1-t)*A + t*B;
@@ -91,4 +86,15 @@ triple circumcenter(triple A, triple B, triple C) {
 path3 circumcircle(triple A, triple B, triple C) {
     triple O_ = circumcenter(A,B,C);
 	return circle(O_, segmentLength(A, O_), cross(A-B,B-C));
+}
+
+// Returns point H from height AH
+triple projection(triple P, triple A, triple B) {
+	return A + dot(P - A, B - A) / dot(B - A, B - A) * (B - A);
+}
+
+// Returns incircle path3
+path3 incircle(triple A, triple B, triple C) {
+	triple O_ = incenter(A,B,C);
+	return circle(O_, length(O_ - projection(O_, B, C)), cross(O_-B,B-C));
 }
