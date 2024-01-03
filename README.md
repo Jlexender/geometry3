@@ -49,3 +49,10 @@ Geometry3 repository is an implementation of basic functions that specify on seg
 
 * path3 circumcircle(triple A, triple B, triple C)
     - Returns a path of circle for ABC triangle
+
+* path3 incircle(triple A, triple B, triple C)
+    - Returns incircle path3
+
+* triple projection(triple P, triple A, triple B)
+    - Returns point H from height AH
+
