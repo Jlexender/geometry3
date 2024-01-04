@@ -16,7 +16,7 @@ path3 height(triple P, triple A, triple B) {
 }
 
 // Returns point on AB in specified ratio t
-path3 ratioPoint(triple A, triple B, real t = 1.0) {
+triple ratioPoint(triple A, triple B, real t = 1.0) {
     return (1-t)*A + t*B;
 }
 

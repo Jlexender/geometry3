@@ -11,3 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - projection function
 - incenter function
  
+## [alpha 1.2] - 2024-01-04
+  
+### Fixed
+
+- ratioPoint(triple, triple, triple) now returns triple
