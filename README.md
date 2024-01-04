@@ -19,7 +19,7 @@ Geometry3 repository is an implementation of basic functions that specify on seg
 * path3 ratioPoint(triple A, triple B, real t = 1.0)
     - Returns point on AB in specified ratio t
 
-* real segmentLength(triple A, triple B)
+* real distance(triple A, triple B)
     - Returns length of segment AB
 
 * path3 bisector(triple P, triple A, triple B)
@@ -37,12 +37,9 @@ Geometry3 repository is an implementation of basic functions that specify on seg
 * triple[] perpendicularPoints(triple A, triple B, triple C, real len = 1, real ratio=1/2)
     - Returns keypoints of perpendicular (see perpendicicular function)
 
-* path3 centerScaledSegment(triple A, triple B, real k=1.0)
-    - Retuns a segment that is scaled by its center by factor k
+* ~~path3 centerScaledSegment(triple A, triple B, real k=1.0)~~
 
-* triple lineIntersection(triple A1, triple A2, triple B1, triple B2, real k=1000)
-    - Returns an intersection point of 2 lines A1A2 and B1B2
-    - NOTE: use only if segments are in one plain, else - unexpected behaviour
+* ~~triple lineIntersection(triple A1, triple A2, triple B1, triple B2, real k=1000)~~
 
 * triple circumcenter(triple A, triple B, triple C)
     - Returns a circumcenter of triangle ABC
@@ -56,5 +53,14 @@ Geometry3 repository is an implementation of basic functions that specify on seg
 * triple projection(triple P, triple A, triple B)
     - Returns point H from height AH
 
-* void markrightangle(triple A, triple O, triple B, real s = 1, pen p = currentpen, pen fillpen = nullpen)
+* void markrightangle(triple A, triple O, triple B, real s = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight)
     - Draws right angle path for AOB angle
+
+* transform3 scale3(triple P, real k)
+    - scaling based on point by factor k
+
+* line3 line3(triple A, triple B)
+    - Initialization for line3
+
+* triple intersectionpoint(line3 a, line3 b)
+    - Intersection point for line3 struct
