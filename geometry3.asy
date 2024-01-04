@@ -1,4 +1,26 @@
+/* 
+geometry3 unofficial module for Asymptote vector graphics language
+
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>. 
+
+Author: Alexander Kaliev 2024/01/04
+*/
+
 import three;
+
+real EPS = sqrt(realEpsilon);
 
 // Returns a triangle path by 3 points
 path3 triangle(triple A, triple B, triple C) {
@@ -101,9 +123,37 @@ path3 incircle(triple A, triple B, triple C) {
 
 // Draws right angle path
 void markrightangle(triple A, triple O, triple B, real s = 1, pen p = currentpen, pen fillpen = nullpen) {
-	triple R1 = s*unit(A-O), R2 = s*unit(B-O);
+	triple R1 = s*unit(A-O)/5, R2 = s*unit(B-O)/5;
   	path3 rightAnglePath = (O + R1) -- (O + R1 + R2) -- (O + R2);
     path3 fillPath = (O + R1) -- (O + R1 + R2) -- (O + R2) -- O -- cycle;
     draw(rightAnglePath, p);
     draw(surface(fillPath), fillpen);
+}
+
+struct line3 {
+    triple A, B;
+    path3 thisLine;
+
+    void init(triple A, triple B) {
+        this.A = A;
+        this.B = B;
+      	thisLine = (A--B);
+      	real k = 10^9;
+      	triple v = (k-1)/2*(B-A);
+      	thisLine = (A-v) -- (B+v);
+    }
+  
+  	path3 getPath() {
+    	return thisLine;
+    }
+}
+
+line3 line3(triple A, triple B) {
+      line3 l;
+      l.init(A,B);
+      return l;
+}
+
+triple intersectionpoint(line3 a, line3 b) {
+	return intersectionpoint(a.getPath(), b.getPath());
 }
