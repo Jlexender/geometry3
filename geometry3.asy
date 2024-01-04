@@ -1,5 +1,4 @@
 import three;
-size(7cm);
 
 // Returns a triangle path by 3 points
 path3 triangle(triple A, triple B, triple C) {
