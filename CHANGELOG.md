@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - projection function
-- incenter function
+- incircle function
  
 ## [alpha 1.2] - 2024-01-04
   
