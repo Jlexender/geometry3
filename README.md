@@ -56,3 +56,5 @@ Geometry3 repository is an implementation of basic functions that specify on seg
 * triple projection(triple P, triple A, triple B)
     - Returns point H from height AH
 
+* void markrightangle(triple A, triple O, triple B, real s = 1, pen p = currentpen, pen fillpen = nullpen)
+    - Draws right angle path for AOB angle

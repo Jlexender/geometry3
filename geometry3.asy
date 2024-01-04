@@ -1,4 +1,5 @@
 import three;
+size(7cm);
 
 // Returns a triangle path by 3 points
 path3 triangle(triple A, triple B, triple C) {
@@ -97,4 +98,13 @@ triple projection(triple P, triple A, triple B) {
 path3 incircle(triple A, triple B, triple C) {
 	triple O_ = incenter(A,B,C);
 	return circle(O_, length(O_ - projection(O_, B, C)), cross(O_-B,B-C));
+}
+
+// Draws right angle path
+void markrightangle(triple A, triple O, triple B, real s = 1, pen p = currentpen, pen fillpen = nullpen) {
+	triple R1 = s*unit(A-O), R2 = s*unit(B-O);
+  	path3 rightAnglePath = (O + R1) -- (O + R1 + R2) -- (O + R2);
+    path3 fillPath = (O + R1) -- (O + R1 + R2) -- (O + R2) -- O -- cycle;
+    draw(rightAnglePath, p);
+    draw(surface(fillPath), fillpen);
 }

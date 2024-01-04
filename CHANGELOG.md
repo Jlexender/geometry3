@@ -16,3 +16,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - ratioPoint(triple, triple, triple) now returns triple
+
+## [alpha 1.3] - 2024-01-04
+  
+### Added
+
+- markrightangle function
