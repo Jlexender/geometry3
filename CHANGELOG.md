@@ -21,4 +21,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   
 ### Added
 
-- markrightangle function
+- markrightangle() function
+
+## [ALPHA 1.4] - 2024-01-05
+  
+### Added
+
+- line3 structure (constructs by 2 triples). Implemented for finding line intersections.
+    * NOTE: drawing a line is a bad idea, so no procedure provided
+- intersectionpoint function between line3
+- scale3 function now overloads for triple: scale3(triple P, real k=1.0)
+
+### Removed
+
+- lineIntersection function (line3 is the alternative way to find intersections)
+- centerScaledSegment function (scale3 function is the alternative)
+
+### Changed
+
+- renamed segmentLength() to distance()
+- better implementation for distance()
+- changed circumcenter() logic
+- reduced angle size in markrightangle()
