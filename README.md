@@ -64,3 +64,9 @@ Geometry3 repository is an implementation of basic functions that specify on seg
 
 * triple intersectionpoint(line3 a, line3 b)
     - Intersection point for line3 struct
+
+* segment3[] tangents(circle3 c, triple A) 
+    - Returns tangent line from point that is away from circle
+
+* segment3 tangent(circle3 c, triple P)
+    - Returns segment of length 1 that is tangent line to the circle that intersects point P

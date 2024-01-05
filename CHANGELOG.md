@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - markrightangle() function
 
-## [ALPHA 1.4] - 2024-01-05
+## [alpha 1.4] - 2024-01-05
   
 ### Added
 
@@ -43,3 +43,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - better implementation for distance()
 - changed circumcenter() logic
 - reduced angle size in markrightangle()
+
+## [alpha 2.0] - 2024-01-05
+  
+### Added
+
+- circle3 structure (drawing works using **toPath()** method)
+- segment3 structure (drawing works using **toPath()** method)
+- tangents() function
+    * Returns tangent line from point that away from circle
+- tangent() function
+    * returns segment of length 1 that is tangent line to the circle that intersects point P
+

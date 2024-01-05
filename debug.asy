@@ -1,23 +1,4 @@
-/* 
-geometry3 unofficial module for Asymptote vector graphics language
-
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, see <http://www.gnu.org/licenses/>. 
-
-Author: Alexander Kaliev 2024/01/04
-*/
-
+// settings.render = 0;
 import three;
 
 // Returns a triangle path by 3 points
@@ -101,7 +82,7 @@ void markrightangle(triple A, triple O, triple B, real s = 1, pen p = currentpen
     draw(surface(fillPath), fillpen, light);
 }
 
-// line3 structure
+// Simple line structure for better code structuring
 struct line3 {
     triple A, B;
     path3 thisLine;
@@ -115,14 +96,13 @@ struct line3 {
       	thisLine = (A-v) -- (B+v);
     }
   
-  	path3 toPath() {
+  	restricted path3 getPath() {
     	return thisLine;
     }
 }
 
-// Initialization for line3
+// Initializer
 line3 line3(triple A, triple B) {
-      if (A == B) abort("unexpected line: AB is a dot");
       line3 l;
       l.init(A,B);
       return l;
@@ -130,7 +110,7 @@ line3 line3(triple A, triple B) {
 
 // Returns line intersection point
 triple intersectionpoint(line3 a, line3 b) {
-	return intersectionpoint(a.toPath(), b.toPath());
+	return intersectionpoint(a.getPath(), b.getPath());
 }
 
 transform3 scale3(triple P, real k) {
@@ -143,6 +123,7 @@ triple circumcenter(triple A, triple B, triple C) {
 	triple[] p1 = perpendicularPoints(A,B,C);
   	triple[] p2 = perpendicularPoints(C,B,A);
   	line3 l1 = line3(p1[0], p1[1]), l2 = line3(p2[0], p2[1]);
+  
     return intersectionpoint(l1, l2);
 }
 
@@ -152,88 +133,50 @@ path3 circumcircle(triple A, triple B, triple C) {
 	return circle(O_, distance(A, O_), cross(A-B,B-C));
 }
 
-// circle3 structure
-struct circle3 {
-  	triple C;
-  	real r;
-  	triple normal;
-    path3 path;
+size(10cm);
 
-    void init(triple C, real r, triple normal) {
-        this.path = circle(C, r, normal);
-      	this.r = r;
-      	this.C = C;
-      	this.normal = normal;
-    }
-  
-  	path3 toPath() {
-    	return path;
-    }
-}
-
-// Initialization for circle3
-circle3 circle3(triple C=O, real r=1, triple normal=X) {
-      circle3 c;
-  	  if (r <= 0) abort("unexpected radius value (r > 0)");
-  	  if (normal == O) abort("unexpected normal vector");
-      c.init(C, r, normal);
-      return c;
-}
+triple C = (0,0,0);
+triple B = (1,0,0);
+triple A = (0.5,sqrt(3)/2,0);
+triple P = (0.5,sqrt(3)/6,sqrt(2./3));
+triple N = midpoint(B--A);
+triple K = midpoint(C--A);
+triple M = ratioPoint(P, C, 1/3);
+triple S = ratioPoint(M, N, 4/7);
 
 
-// segment3 structure
-struct segment3 {
-	triple A,B;
-  
-  	void init(triple A, triple B) {
-    	this.A = A;
-      	this.B = B;
-    }
-  
-  	path3 toPath() {
-    	return A--B;
-    } 	
-}
+dot(N, 2bp+black);
+dot(K, 2bp+black);
+dot(P, 2bp+black);
+dot(A, 2bp+black);
+dot(B, 2bp+black);
+dot(C, 2bp+black);
+dot(M, 2bp+black);
+dot(S, 2bp+black);
+draw(B--C,longdashed);
+draw(B--A--C--P--B--cycle);
+draw(P--A);
+draw(M--N, dashed);
 
-// Initialization for segment3
-segment3 segment3(triple A, triple B) {
-      if (A == B) abort("unexpected segment: AB is a dot");
-  	  segment3 l;
-      l.init(A, B);
-      return l;
-} 
+label("$A$",A,E);
+label("$B$",B,SW);
+label("$C$",C,E);
+label("$P$",P,NW);
+label("$N$",N,SW);
+label("$K$",K,SE);
+label("$M$",M,NE);
+label("$S$",S,NW);
 
-// tangents function. Returns tangent line from point that away from circle
-segment3[] tangents(circle3 c, triple A) {
-  	if (dot(c.normal, A-c.C) != 0) abort("Point and circle aren't in-plane");
-	circle3 c_ = circle3((A+c.C)/2, abs(A-c.C)/2, c.normal);
-  	segment3[] L;
-  	triple[] ii = intersectionpoints(c.toPath(), c_.toPath());
-  	for (int i = 0; i < ii.length; ++i) {
-    	L.push(segment3(A, ii[i]));
-    }
-  	return L;
-}
+draw(height(M,K,C));
+draw(circumcircle(M,K,C));
+draw(incircle(A,B,C), dotted);
 
-// tangent function returns segment of length 1 that is tangent line to the circle that intersects point P.
-segment3 tangent(circle3 c, triple P) {
-  	triple[] L = intersectionpoints(c.toPath(), P);
-	if (L.length == 0) abort("point is not on the circle path");
-  	draw(c.C --(c.C +c.normal));
-  	
-  	draw(P -- P+c.normal, blue);
-  	triple B = scale3(P, 1/c.r)*rotate(90, P, P+c.normal)*(c.C);
-    triple C = scale3(P, 1/c.r)*rotate(-90, P, P+c.normal)*(c.C);
-  	return segment3(B,C);
-}
+draw(scale3(A, 1/2)*(N--K));
+markrightangle(M, projection(M, A, C), C, fillpen=magenta+opacity(0.2), nolight);
+dot(circumcenter(M,K,C), pink);
 
+line3 l1 = line3(S,N), l2 = line3(A,M);
 
-size(5cm);
-circle3 c = circle3(r=2); 
-dot(O);
-draw(c.toPath());
-
-triple P = (0,2,0);
-dot(P, blue);
-draw(tangent(c, P).toPath(), dashed);
-
+dot(intersectionpoint(l1, l2), orange);
+// Change the perspective
+currentprojection = perspective(8,27.3,15);
