@@ -227,13 +227,3 @@ segment3 tangent(circle3 c, triple P) {
   	return segment3(B,C);
 }
 
-
-size(5cm);
-circle3 c = circle3(r=2); 
-dot(O);
-draw(c.toPath());
-
-triple P = (0,2,0);
-dot(P, blue);
-draw(tangent(c, P).toPath(), dashed);
-
