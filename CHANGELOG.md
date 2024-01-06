@@ -70,7 +70,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - restructurized code, all structures have toPath() method if needed.
-- changed values according to added structures
+- changed return values according to added structures
 
 ### Fixed
 

@@ -2,7 +2,7 @@
 
 Geometry3 repository is an implementation of basic functions that specify on segments on triangles (especially from geometry.asy), but ported to 3D and triple-like variables. 
 
-# List of available functions (to be done)
+# List of available functions (to be done, check changelog & module)
 
 * path3 triangle(triple A, triple B, triple C)
     - Returns a triangle path by 3 points
