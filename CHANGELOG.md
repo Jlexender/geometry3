@@ -55,3 +55,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - tangent() function
     * returns segment of length 1 that is tangent line to the circle that intersects point P
 
+## [alpha 2.1] - 2024-01-06
+  
+### Added
+
+- plane structure (comparable)
+    * constructor by 3 points
+    * constructor by 1 point & normal vector
+- draw() functions for every struct except plane
+- intersectionpoint() functions
+- projection(plane, triple) function
+- distance(triple, plane) function
+
+### Changed
+
+- restructurized code, all structures have toPath() method if needed.
+- changed values according to added structures
+
+### Fixed
+
+- tangents function
+
