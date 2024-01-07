@@ -431,6 +431,7 @@ triple[] tangents(circle3 c, triple P) {
 	return L;
 } 
 
+
 void markrightangle(triple A, triple B, triple C, real size = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight) {
 	triple R1 = size*unit(A-B)/25, R2 = size*unit(C-B)/25;
   	path3 rightAnglePath = (B + R1) -- (B + R1 + R2) -- (B + R2);
