@@ -157,4 +157,3 @@ NOTE: Functions with dot in their name in this list mean that module has the met
 - void markangle(triple A, triple B, triple C, int n = 1, real radius = 1, real space = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight)
 
 In this procedures, __radius__ and __space__ are coefficients of scaling.
-
