@@ -59,4 +59,6 @@ NOTE: Functions with dot in their name in this list mean that module has the met
 - circle3 circumcircle(triangle3 t)
 - line3 tangent(circle3 c, triple P)
 - triple[] tangents(circle3 c, triple P)
+- void markrightangle(triple A, triple B, triple C, real size = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight)
+- void markangle(triple A, triple B, triple C, int n = 1, real radius = 1, real space = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight)
 

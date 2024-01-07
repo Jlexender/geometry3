@@ -430,3 +430,23 @@ triple[] tangents(circle3 c, triple P) {
   
 	return L;
 } 
+
+void markrightangle(triple A, triple B, triple C, real size = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight) {
+	triple R1 = size*unit(A-B)/25, R2 = size*unit(C-B)/25;
+  	path3 rightAnglePath = (B + R1) -- (B + R1 + R2) -- (B + R2);
+    path3 fillPath = (B + R1) -- (B + R1 + R2) -- (B + R2) -- B -- cycle;
+    draw(rightAnglePath, p);
+    draw(surface(fillPath), fillpen, light);
+}
+
+void markangle(triple A, triple B, triple C, int n = 1, real radius = 1, real space = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight) {
+	for (int i = 0; i < n; ++i) {
+      	path3 mark = scale3(radius*0.125/length(B-C),B)*arc(B,C,A);
+      	mark = scale3(1+0.125*space*i,B)*mark;
+    	draw(mark);
+      	if (i == n-1) {
+        	surface fillPath = surface(B--mark--cycle);
+          	draw(fillPath, fillpen, light);
+        }
+    }
+}
