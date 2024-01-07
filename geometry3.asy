@@ -1,6 +1,6 @@
-/* 
-geometry3 unofficial module for Asymptote vector graphics language
-
+/*
+Asymptote VG language module (geometry3 package for 3D images).
+Copyright (c) 2024
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,345 +13,420 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, see <http://www.gnu.org/licenses/>. 
+along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 Author: Alexander Kaliev 2024/01/04
 */
 
 import three;
 
-/* CONSTANTS */
-real EPS = 1e-7;
+real EPS = sqrt(realEpsilon); // \approx 1.49e-08
 
-/* LINE STRUCTURE */
-
-// line3 structure
-struct line3 {
-    triple A, B;
-  	bool extendA, extendB;
-    path3 path;
-
-    void init(triple A, bool extendA=true, triple B, bool extendB=true) {
-        this.A = A;
-        this.B = B;
-      	path = (A--B);
-      	real kA = extendA ? 10^9: 1, kB = extendB ? 10^9: 1;
-      	triple vA = (kA-1)/2*(B-A), vB = (kB-1)/2*(B-A);
-      	path = (A-vA) -- (B+vB);
-    }
-  
-  	path3 getPath() {
-    	return path;
-    }
+bool operator ==(real x, real y) {
+	return abs(x-y) < EPS;
 }
 
-// Initialization for line3
-line3 line3(triple A, bool extendA=true, triple B, bool extendB=true) {
-      if (A == B) abort("unexpected line: AB is a dot");
-      line3 l;
-      l.init(A, extendA, B, extendB);
-      return l;
+bool operator !=(real x, real y) {
+	return !(x == y);
 }
 
-/* SEGMENT STRUCTURE */
-
-// segment3 structure
-struct segment3 {
-	triple A,B;
-  
-  	void init(triple A, triple B) {
-    	this.A = A;
-      	this.B = B;
-    }
-  
-  	path3 getPath() {
-    	return A--B;
-    } 	
+bool operator ==(triple T1, triple T2) {
+	return (abs(T1.x - T2.x) < EPS) &&
+      	   (abs(T1.y - T2.y) < EPS) &&
+      	   (abs(T1.z - T2.z) < EPS);
 }
 
-// Initialization for segment3
-segment3 segment3(triple A, triple B) {
-      if (A == B) abort("unexpected segment: AB is a dot");
-  	  segment3 l;
-      l.init(A, B);
-      return l;
-} 
-
-/* CIRCLE STRUCTURE */
-
-// circle3 structure
-struct circle3 {
-  	triple C;
-  	real r;
-  	triple normal;
-    path3 path;
-
-    void init(triple C, real r, triple normal) {
-        this.path = circle(C, r, normal);
-      	this.r = r;
-      	this.C = C;
-      	this.normal = normal;
-    }
-  
-  	path3 getPath() {
-    	return path;
-    }
+bool operator !=(triple T1, triple T2) {
+	return !(T1 == T2);
 }
 
-// Initialization for circle3
-circle3 circle3(triple C=O, real r=1, triple normal=X) {
-      circle3 c;
-  	  if (r <= 0) abort("unexpected radius value (r > 0)");
-  	  if (normal == O) abort("unexpected normal vector");
-      c.init(C, r, normal);
-      return c;
+string string(bool b) {
+	return (b ? "true":"false");
 }
 
-/* PLANE STRUCTURE */
-
-// plane structure
-struct plane {
-	triple normal;
-  	real A,B,C,D;
-  
-  	void init(triple A, triple B, triple C) {
-      	normal = unit(cross(B-A,C-A));
-      	this.A = normal.x;
-      	this.B = normal.y;
-      	this.C = normal.z;
-      	this.D = -(normal.x*A.x + normal.y*A.y + normal.z*A.z); 	 
-    }
-  
-  	void init(triple A, triple normal) {
-    	normal = unit(normal);
-      	this.A = normal.x;
-      	this.B = normal.y;
-      	this.C = normal.z;
-      	this.D = -(normal.x*A.x + normal.y*A.y + normal.z*A.z); 	 
-    }
-  
-  	bool operator ==(plane p) {
-    	if (abs(abs(p.normal.x) - abs(this.normal.x)) < EPS && 
-            abs(abs(p.normal.y) - abs(this.normal.y)) < EPS &&
-            abs(abs(p.normal.z) - abs(this.normal.z)) < EPS)
-        	return true;
-        else	return false;
-    }
-  
-  		
+string string(triple t) {
+	return string(t.x)+' '+string(t.y)+' '+string(t.z);
 }
-
-// Initialization for plane
-plane plane(triple A, triple B, triple C) {
-      if (A == B || B == C || A == C) abort("AB is a dot");
-  	  plane p;
-  	  p.init(A,B,C);
-  	  return p;
-}
-
-// Initialization for plane (point and normal vector)
-plane plane(triple A, triple normal) {
-  	  plane p;
-  	  p.init(A,normal);
-  	  return p;
-}
-
-/* BASIC LINE FUNCTIONS */
-
-// Returns midpoint of AB
-triple midpoint(triple A, triple B) {
-	return (A+B)/2;
-}
-
-// Returns point on AB in specified ratio t
-triple ratioPoint(triple A, triple B, real t = 1.0) {
-    return (1-t)*A + t*B;
-}
-
-// Returns length of segment AB
-real distance(triple A, triple B) {
-    return abs(A-B);
-}
-
-// Returns distance from P to the p plane
-real distance(triple P, plane p) {
-	return (abs(p.A * P.x + p.B * P.y + p.C * P.z + p.D))/(sqrt(p.A^2 + p.B^2 + p.C^2));
-}
-
-/* PROJECTIONS */
-
-// Returns point H from height AH
-triple projection(triple A, triple B, triple P) {
-	return A + dot(P - A, B - A) / dot(B - A, B - A) * (B - A);
-}
-
-// Grows a perpendicular line in specified plain ABC from dot in ratio of AB.
-segment3 perpendicular(triple A, triple B, triple C, real len = 1, real ratio=1/2) {
-    triple AB = B-A;
-    triple D = A + ratio*AB;
-    triple normalVector = cross(A-B, C-B);
-    triple perpendicularVector = cross(AB, normalVector);
-	triple E_ = D + len*unit(perpendicularVector);
-    return segment3(D,E_);
-}
-
-// Returns key points of perpendicular (see perpendicicular function)
-triple[] perpendicular2(triple A, triple B, triple C, real len = 1, real ratio=1/2) {
-    triple AB = B-A;
-    triple D = A + ratio*AB;
-    triple normalVector = cross(A-B, C-B);
-    triple perpendicularVector = cross(AB, normalVector);
-	triple E_ = D + len*unit(perpendicularVector);
-    triple[] L = {D, E_};
-    return L;
-}
-
-// Projects a point P to plane p
-triple projection(plane p, triple P) {
-  	real rho = distance(P, p);
-  	triple P1 = P+p.normal*rho, P2 = P-p.normal*rho;
-	real r1 = distance(P1, p), r2 = distance(P2, p);
-    return (r1 > r2 ? P-p.normal*rho : P+p.normal*rho);
-}
-
-/* INTERSECTIONS */
-
-// Returns line intersection point
-triple intersectionpoint(line3 a, line3 b) {
-	return intersectionpoint(a.getPath(), b.getPath());
-}
-
-// Returns intersection point between line and plane
-triple intersectionpoint(line3 a, plane b) {
-  	return O;
-}
-
-// Returns line intersection point
-triple intersectionpoint(line3 a, segment3 b) {
-	return intersectionpoint(a.getPath(), b.getPath());
-}
-
-// Returns line intersection point
-triple intersectionpoint(circle3 a, circle3 b) {
-	return intersectionpoint(a.getPath(), b.getPath());
-}
-
-// Returns line intersection point
-triple intersectionpoint(circle3 a, line3 b) {
-	return intersectionpoint(a.getPath(), b.getPath());
-}
-
-// Returns line intersection point
-triple intersectionpoint(circle3 a, segment3 b) {
-	return intersectionpoint(a.getPath(), b.getPath());
-}
-
-// Returns line intersection point
-triple intersectionpoint(segment3 a, segment3 b) {
-	return intersectionpoint(a.getPath(), b.getPath());
-}
-
-/* TRANSFORMATIONS */
 
 transform3 scale3(real k, triple P) {
 	real r = length(O--P);
   	return shift(P*(r-k))*scale3(k);
 }
 
-/* TRIANGLE GEOMETRY */ 
 
-// Returns a triangle path by 3 points
-path3 triangle(triple A, triple B, triple C) {
-    return A--B--C--cycle;
+real distance(triple P1, triple P2) {
+	return length(P1-P2);
 }
 
-// Returns a bisector path
-segment3 bisector(triple P, triple A, triple B) {
-	return segment3(P, ratioPoint(A,B,distance(P,A)/(distance(P,A)+distance(P,B))));
-}
 
-// Returns a centroid of given triangle ABC
-triple centroid(triple A, triple B, triple C) {
-    return (A+B+C)/3;
-}
-
-// Returns incenter of given triangle ABC
-triple incenter(triple A, triple B, triple C) {
-	return intersectionpoint(bisector(A,B,C), bisector(B,A,C));
-}
-
-// Returns incircle path3
-circle3 incircle(triple A, triple B, triple C) {
-	triple O_ = incenter(A,B,C);
-	return circle3(O_, length(O_ - projection(O_, B, C)), cross(O_-B,B-C));
-}
-
-// Returns a circumcenter of triangle ABC
-triple circumcenter(triple A, triple B, triple C) {
-	triple[] p1 = perpendicular2(A,B,C);
-  	triple[] p2 = perpendicular2(C,B,A);
-  	line3 l1 = line3(p1[0], p1[1]), l2 = line3(p2[0], p2[1]);
-    return intersectionpoint(l1, l2);
-}
-
-// Returns a path of circle for ABC triangle.
-circle3 circumcircle(triple A, triple B, triple C) {
-    triple O_ = circumcenter(A,B,C);
-	return circle3(O_, distance(A, O_), cross(A-B,B-C));
-}
-
-// Returns a path of height from P to AB in triangle ABC
-segment3 height(triple P, triple A, triple B) {
-    return segment3(P, (A + dot(P - A, B - A) / dot(B - A, B - A) * (B - A)));
-}
-
-/* CIRCLE */
-
-// tangent function returns segment of length 1 that is tangent line to the circle that intersects point P.
-segment3 tangent(circle3 c, triple P) {
-  	triple[] L = intersectionpoints(c.path, P);
-  	triple B = scale3(1/c.r, P)*rotate(90, P, P+c.normal)*(c.C);
-    triple C = scale3(1/c.r, P)*rotate(-90, P, P+c.normal)*(c.C);
-  	return segment3(B,C);
-}
-
-// Epsilon problem
-/* triple[] tangents(circle3 c, triple A, real fuzz = EPS) {
-  	if (dot(c.normal, A-c.C) > EPS) abort("Point and circle aren't in-plane");    
-	circle3 c_ = circle3(projection(plane(c.C, c.normal), midpoint(A,c.C)), distance(A,c.C)/2, c.normal); 
+struct plane {
+	restricted real a,b,c,d;
+  	restricted triple n;
   
-  	real[][] t=intersections(c.getPath(),c_.getPath(),fuzz);
-  	return sequence(new triple(int i) {return point(c.getPath(),t[i][0]);},t.length);
-} */ 
-
-// tangents function. Returns tangent line from point that away from circle
-triple[] tangents(circle3 c, triple A) {
-	if (dot(c.normal, A-c.C) > EPS) abort("Point and circle aren't in-plane");
-  	path3 c_ = shift((A-c.C)/2)*scale3(distance(A, c.C)/(2*c.r), c.C)*c.getPath();
-  	triple[] i = {intersectionpoint(c.getPath(), c_, fuzz=EPS)};
-  	i.push(reflect(A, c.C, A+c.normal)*i[0]);
-  	return i;
+  	void init(triple P, triple n) {
+        if (n.x < 0) n *= -1;
+      	n = unit(n);
+    	a = n.x;
+      	b = n.y;
+      	c = n.z;
+      	d = -(P.x*a + P.y*b + P.z*c);
+      	this.n = n;
+    }
+  
+  	void init(triple A, triple B, triple C) {
+    	triple n = cross(B-A, C-A);
+      	if (n.x < 0) n *= -1;
+      	init(A, n);
+    }
+  
+  	real calculate(triple P) {
+    	return P.x*a + P.y*b + P.z*c + d;
+    }
 }
 
-/* DRAWING */
-
-// Draws right angle path
-void markrightangle(triple A, triple O, triple B, real s = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight) {
-	triple R1 = s*unit(A-O)/25, R2 = s*unit(B-O)/25;
-  	path3 rightAnglePath = (O + R1) -- (O + R1 + R2) -- (O + R2);
-    path3 fillPath = (O + R1) -- (O + R1 + R2) -- (O + R2) -- O -- cycle;
-    draw(rightAnglePath, p);
-    draw(surface(fillPath), fillpen, light);
+bool operator ==(plane p1, plane p2) {
+	return p1.a == p2.a && p1.b == p2.b && p1.c == p2.c && p1.d == p2.d;
 }
 
-void draw(picture pic=currentpicture, Label L="", circle3 g, align align=NoAlign, material p=currentpen, margin3 margin=NoMargin3, light light=nolight, string name="", render render=defaultrender) {
+plane plane(triple P, triple n) {
+	plane p; p.init(P, n);
+  	return p;
+}
+
+plane plane(triple A, triple B, triple C) {
+	plane p; p.init(A,B,C);
+  	return p;
+}
+
+bool inplane(plane p, triple P) {
+	return abs(p.calculate(P)) < EPS;
+}
+
+real distance(triple P, plane p) {
+	return abs(p.a*P.x + p.b*P.y + p.c*P.z + p.d)/sqrt(p.a^2 + p.b^2 + p.c^2);
+}
+
+triple projection(plane p, triple P) {
+  	triple P1=P-p.n*distance(P,p), P2=P+p.n*distance(P,p); 
+	return (distance(P1, p) > distance(P2, p) ? P2:P1);
+}
+
+
+struct line3 {
+	restricted triple v, P;
+  	restricted path3 base;
+  
+  	void init(triple P, triple v, bool vec=false) {
+      	if (vec) {
+            base = P -- (P+v);
+        	this.v = unit(v);
+      		this.P = P;
+        }
+      	else {
+          	base = P--v;
+        	triple B = v, A = P;
+          	this.v = unit(B-A);
+          	this.P = A;
+        }
+    }
+  
+  	void redirect() {
+    	v *= -1;
+    }
+  	
+  	path3 getBase() {
+    	return base;
+    }
+  
+  	path3 getLine() {
+      	path3 s = P--(P+v);
+    	return scale3(1/EPS, midpoint(s))*s;
+    }
+  
+  	line3 copy() { return this; }
+}
+
+line3 line3(triple v, triple P, bool vec=false) {
+	line3 l; l.init(v, P, vec);
+  	return l;
+}
+
+bool inplane(plane p, line3 l) {
+	return inplane(p, l.P) && inplane(p, l.P+l.v);
+}
+
+bool parallel(line3 l1, line3 l2) {
+  	if (l1.v.x < 0) l1.redirect();
+    if (l2.v.x < 0) l2.redirect();
+	return l1.v == l2.v;
+}
+
+bool crossing(line3 l1, line3 l2) {
+  	if (parallel(l1,l2)) return false;
+	triple[] L = {l1.P,l1.P+l1.v,l2.P,l2.P+l2.v};
+  	bool c1=inplane(plane(L[0], L[1], L[2]), L[3]),
+  		 c2=inplane(plane(L[1], L[2], L[3]), L[0]),
+  		 c3=inplane(plane(L[2], L[3], L[0]), L[1]),
+  		 c4=inplane(plane(L[3], L[0], L[1]), L[2]);
+  	return !(c1 || c2 || c3 || c4);
+}
+
+triple intersectionpoint(line3 l1, line3 l2, real fuzz=-1) {
+	if (parallel(l1,l2) || crossing(l1,l2)) abort("lines do not intersect");
+  	return intersectionpoint(l1.getLine(), l2.getLine(), fuzz);
+}
+
+triple intersectionpoint(line3 l, plane p, real fuzz=-1) {
+	triple P1 = projection(p, l.P), P2 = projection(p, l.P+l.v);
+  	line3 l_p = line3(P1, P2);
+  	return intersectionpoint(l_p, l, fuzz);
+}
+
+line3 projection(plane p, line3 l) {
+	line3 l_p = line3(projection(p, l.P), projection(p, l.P+l.v));
+  	return l_p;
+}
+
+line3 raiseperpendicular(plane p, triple P) {
+	if (!inplane(p, P)) return line3(P, projection(p,P));
+  	return line3(P, p.n, true);
+}
+
+struct triangle3 {
+	restricted triple A,B,C;
+  	restricted real a,b,c,alpha,beta,gamma,area,perimeter;
+  
+  	void calculate(triple A, triple B, triple C) {
+    	a = length(B-C);
+      	b = length(A-C);
+      	c = length(A-B);
+      	alpha = acos((b^2 + c^2 - a^2)/(2*b*c));
+      	beta = acos((a^2 + c^2 - b^2)/(2*a*c));
+        gamma = acos((a^2 + b^2 - c^2)/(2*a*b));
+      	area = 0.5*a*b*sin(gamma);
+      	perimeter = a+b+c;
+    }
+  
+  	void init(triple A, triple B, triple C) {
+    	this.A = A;
+      	this.B = B;
+      	this.C = C;
+      	calculate(A,B,C);
+    }
+  
+  	real a() { return a; }
+  	real b() { return b; }
+  	real c() { return c; }
+  	real alpha() { return alpha; }
+  	real beta() { return beta; }
+  	real gamma() { return gamma; }
+  	real area() { return area; }
+  	real perimeter() { return perimeter; }
+  
+  	path3 getPath() {
+    	return A--B--C--cycle;
+    }
+
+}
+
+triangle3 triangle3(triple A, triple B, triple C) {
+	triangle3 t;
+  	t.init(A,B,C);
+  	return t;
+}
+
+plane plane(triangle3 t) {
+	plane p; p.init(t.A,t.B,t.C);
+  	return p;
+}
+
+void draw(picture pic=currentpicture, Label L="", triangle3 g, align align=NoAlign, material p=currentpen, margin3 margin=NoMargin3, light light=nolight, string name="", render render=defaultrender) {
   draw(pic,L,g.getPath(),align,p,margin,light,name,render);
 }
 
-void draw(picture pic=currentpicture, Label L="", line3 g, align align=NoAlign, material p=currentpen, margin3 margin=NoMargin3, light light=nolight, string name="", render render=defaultrender) {
-  draw(pic,L,g.getPath(),align,p,margin,light,name,render);
+
+struct circle3 {
+	restricted triple C,n;
+  	restricted real r;
+  
+	void init(triple C, real r, triple n=Z) {
+      	if (n.x < 0) n *= -1;
+    	this.C = C;
+      	this.r = r;
+      	this.n = unit(n);
+    }
+  
+  	plane getPlane() {
+    	return plane(C, n);
+    }
+  
+  	path3 getPath() {
+    	return circle(C, r, n);
+    }
 }
 
-void draw(picture pic=currentpicture, Label L="", segment3 g, align align=NoAlign, material p=currentpen, margin3 margin=NoMargin3, light light=nolight, string name="", render render=defaultrender) {
-  draw(pic,L,g.getPath(),align,p,margin,light,name,render);
+circle3 circle3(triple C, real r, triple n=Z) {
+	circle3 c;
+  	c.init(C,r,n);
+  	return c;
 }
+
+bool inplane(plane p, circle3 c) {
+  	plane p2 = c.getPlane();
+	return p == c.getPlane();
+}
+
+bool oncircle(circle3 c, triple P) {
+	return inplane(c.getPlane(), P) && distance(c.C, P) == c.r;
+}
+
+circle3 unitcircle = circle3(O, 1);
+
+triple centroid(triangle3 t) {
+	return (t.A + t.B + t.C)/3;
+}
+
+path3 median(triangle3 t, triple P) {
+	if (P == t.A) {
+    	return P -- midpoint(t.B--t.C);
+    }
+  	if (P == t.B) {
+    	return P -- midpoint(t.A--t.C);
+    }
+  	if (P == t.C) {
+    	return P -- midpoint(t.B--t.A);
+    }
+  	abort("P is not a triangle vertex");
+  	return O;
+}
+
+triple heightpoint(triangle3 t, triple P) {
+  	plane p, p_t = plane(t);
+	if (P == t.A) {
+    	p = plane(t.B, t.C, midpoint(t.B--t.C)+p_t.n);
+      	return projection(p, t.A);
+    }
+  	if (P == t.B) {
+    	p = plane(t.A, t.C, midpoint(t.A--t.C)+p_t.n);
+      	return projection(p, t.B);
+    }
+  	if (P == t.C) {
+    	p = plane(t.A, t.B, midpoint(t.A--t.B)+p_t.n);
+      	return projection(p, t.C);
+    }
+  	abort("P is not a triangle vertex");
+  	return O;
+}
+
+path3 height(triangle3 t, triple P) {
+	return P--heightpoint(t, P);
+}
+
+triple orthocenter(triangle3 t) {
+	triple H1 = heightpoint(t, t.A), H2 = heightpoint(t, t.B);
+  	line3 l1 = line3(t.A, H1), l2 = line3(t.B, H2);
+  	plane p = plane(t);
+  	return projection(p, intersectionpoint(l1, l2));
+}
+
+triple bisectorpoint(triangle3 t, triple P) {
+	if (P == t.A) {
+    	return relpoint(t.B--t.C, t.c/(t.b+t.c));
+    }
+  	if (P == t.B) {
+    	return relpoint(t.A--t.C, t.c/(t.a+t.c));
+    }
+  	if (P == t.C) {
+    	return relpoint(t.A--t.B, t.b/(t.a+t.b));
+    }
+  	abort("P is not a triangle vertex");
+  	return O;
+}
+
+path3 bisector(triangle3 t, triple P) {
+	return P--bisectorpoint(t, P);
+}
+
+triple incenter(triangle3 t) {
+  	plane p = plane(t);
+	line3 b1 = line3(t.A, bisectorpoint(t, t.A)),
+      	  b2 = line3(t.B, bisectorpoint(t, t.B));
+  	return projection(p, intersectionpoint(b1, b2));
+}
+
+circle3 incircle(triangle3 t) {
+	triple I = incenter(t), n = plane(t).n;
+  	triangle3 t_I = triangle3(I, t.B, t.C);
+  	real r = length(I-heightpoint(t_I, I));
+  	return circle3(I,r,n);
+}
+
+triple circumcenter(triangle3 t) {
+  	triple n = plane(t).n;
+	triple A1 = midpoint(t.B--t.C), 
+  		   B1 = midpoint(t.C--t.A);
+  	triple nA = plane(t.B, t.C, A1+n).n,
+  		   nB = plane(t.A, t.C, B1+n).n;
+  	line3 l1 = line3(A1, A1+nA),
+  		  l2 = line3(B1, B1+nB);
+  	return intersectionpoint(l1, l2);
+}
+
+circle3 circumcircle(triangle3 t) {
+	triple O = circumcenter(t);
+  	real r = length(t.A-O);
+  	return circle3(O, r, plane(t).n);
+}
+
+line3 tangent(circle3 c, triple P) {
+	triple n = c.n;
+  	triple O1 = rotate(90, P, P+n)*c.C;
+  	triple O2 = scale3(-1, P)*O1;
+  	return line3(O1, O2);
+}
+
+
+// epsilon problem
+/* triple[] tangents(circle3 c, triple P) {
+  	plane p = c.getPlane();
+  	if (!inplane(p, P)) abort("P is not in circle3 plane");
+  	triple O1 = midpoint(P--c.C);
+  	circle3 c1 = circle3(O1, length(P-c.C)/2, c.n);
+  	draw(c1.getPath(), blue+dashed);
+  	triple[] t = intersectionpoints(c1.getPath(), c.getPath(), fuzz=EPS);
+  	dot(t[1]);
+  	return t;
+} */
+
+triple[] tangents(circle3 c, triple P) {
+    plane p = c.getPlane();
+    if (!inplane(p, P)) abort("P is not in circle3 plane");
+  
+  	triple[] L;
+  	real d = distance(c.C, P);
+  	circle3 c1 = circle3((c.C+P)/2, d/2, c.n);
+  	path3 c1_p = c1.getPath();
+  
+  	real l=0, r=180;
+  	triple t;
+  	for (int i = 0; i < 100; ++i) {
+    	real mid = (l+r)/2;
+      	t = arcpoint(c1_p, mid);
+      	if (distance(t, c.C) < c.r) l = mid;
+      	else r = mid;
+    }
+	t = arcpoint(c1_p, r);
+  	L.push(t);
+  	
+  	real l=-180, r=0;
+  	for (int i = 0; i < 100; ++i) {
+    	real mid = (l+r)/2;
+      	t = arcpoint(c1_p, mid);
+      	if (distance(t, c.C) < c.r) r = mid;
+      	else l = mid;
+    }
+	t = arcpoint(c1_p, l);
+  	if (t != L[0]) L.push(t);
+  
+	return L;
+} 
