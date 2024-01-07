@@ -2,7 +2,7 @@
 
 This repository shares the source code of geometry3 module, an implementation of basic functions that specify on segments on triangles (especially from geometry.asy), but ported to 3D and triple-like variables. 
 
-Current version: beta 1.1.
+Current version: beta 1.2.
 
 # List of available functions
 
@@ -25,6 +25,7 @@ NOTE: Functions with dot in their name in this list mean that module has the met
 - bool inplane(plane p, line3 l)
 - bool parallel(line3 l1, line3 l2)
 - bool crossing(line3 l1, line3 l2)
+- plane plane(line3 l1, line3 l2)
 - triple intersectionpoint(line3 l1, line3 l2, real fuzz=-1)
 - triple intersectionpoint(line3 l, plane p, real fuzz=-1)
 - line3 projection(plane p, line3 l)

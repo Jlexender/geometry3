@@ -157,3 +157,13 @@ NOTE: Functions with dot in their name in this list mean that module has the met
 - void markangle(triple A, triple B, triple C, int n = 1, real radius = 1, real space = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight)
 
 In this procedures, __radius__ and __space__ are coefficients of scaling.
+
+## [beta 1.2] - 2024-01-07
+
+### Added
+
+- plane plane(line3 l1, line3 l2)
+
+### Fixed
+
+- intersectionpoint(line3 l1, line3 l2) function (less calculation errors now)

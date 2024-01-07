@@ -171,9 +171,24 @@ bool crossing(line3 l1, line3 l2) {
   	return !(c1 || c2 || c3 || c4);
 }
 
+plane plane(line3 l1, line3 l2) {
+  	if (parallel(l1,l2) || crossing(l1,l2)) abort("no such plane");
+	triple[] L = {l1.P,l1.P+l1.v,l2.P,l2.P+l2.v};
+  	bool c1=inplane(plane(L[0], L[1], L[2]), L[3]),
+  		 c2=inplane(plane(L[1], L[2], L[3]), L[0]),
+  		 c3=inplane(plane(L[2], L[3], L[0]), L[1]),
+  		 c4=inplane(plane(L[3], L[0], L[1]), L[2]);
+    if (c1) return plane(L[0], L[1], L[2]);
+  	else if (c2) return plane(L[1], L[2], L[3]);
+  	else if (c3) return plane(L[2], L[3], L[0]);
+  	else return plane(L[3], L[0], L[1]);
+}
+
 triple intersectionpoint(line3 l1, line3 l2, real fuzz=-1) {
 	if (parallel(l1,l2) || crossing(l1,l2)) abort("lines do not intersect");
-  	return intersectionpoint(l1.getLine(), l2.getLine(), fuzz);
+  	plane p = plane(l1,l2);
+  	triple i = intersectionpoint(l1.getLine(), l2.getLine(), fuzz);
+  	return projection(p, i);
 }
 
 triple intersectionpoint(line3 l, plane p, real fuzz=-1) {
