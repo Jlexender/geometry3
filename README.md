@@ -2,7 +2,7 @@
 
 This repository shares the source code of geometry3 module, an implementation of basic functions that specify on segments on triangles (especially from geometry.asy), but ported to 3D and triple-like variables. 
 
-Current version: beta 1.3.
+Current version: beta 1.31.
 
 # List of available functions
 
