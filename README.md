@@ -2,7 +2,7 @@
 
 This repository shares the source code of geometry3 module, an implementation of basic functions that specify on segments on triangles (especially from geometry.asy), but ported to 3D and triple-like variables. 
 
-Current version: beta 1.2.
+Current version: beta 1.3.
 
 # List of available functions
 
@@ -21,7 +21,7 @@ NOTE: Functions with dot in their name in this list mean that module has the met
 - path3 line3.getBase()
 - path3 line3.getLine()
 - line3 line3.copy()
-- line3 line3(triple v, triple P, bool vec=false)
+- line3 line3(triple P, bool extendA=true, triple v, bool extendB=true, bool vec=false)
 - bool inplane(plane p, line3 l)
 - bool parallel(line3 l1, line3 l2)
 - bool crossing(line3 l1, line3 l2)
@@ -62,4 +62,13 @@ NOTE: Functions with dot in their name in this list mean that module has the met
 - triple[] tangents(circle3 c, triple P)
 - void markrightangle(triple A, triple B, triple C, real size = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight)
 - void markangle(triple A, triple B, triple C, int n = 1, real radius = 1, real space = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight)
+- bool operator !=(plane p1, plane p2)
+- path3 segment3.getPath()
+- segment3 segment3(triple A, triple B)
+- segment3 copy(segment3 s)
+- line3 line3(segment3 s, bool extendA=true, bool extendB=true)
+- bool inplane(plane p, segment3 s)
+- bool parallel(segment3 l1, segment3 l2)
+- triple intersectionpoint(segment3 s1, segment3 s2, real fuzz=-1)
+
 

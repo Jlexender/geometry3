@@ -88,6 +88,10 @@ bool operator ==(plane p1, plane p2) {
 	return p1.a == p2.a && p1.b == p2.b && p1.c == p2.c && p1.d == p2.d;
 }
 
+bool operator !=(plane p1, plane p2) {
+	return !(p1 == p2);
+}
+
 plane plane(triple P, triple n) {
 	plane p; p.init(P, n);
   	return p;
@@ -115,10 +119,11 @@ triple projection(plane p, triple P) {
 struct line3 {
 	restricted triple v, P;
   	restricted path3 base;
+  	restricted bool extendA, extendB;
   
-  	void init(triple P, triple v, bool vec=false) {
+  	void init(triple P, bool extendA=true, triple v, bool extendB=true, bool vec=false) {
       	if (vec) {
-            base = P -- (P+v);
+            base = P--(P+v);
         	this.v = unit(v);
       		this.P = P;
         }
@@ -128,6 +133,8 @@ struct line3 {
           	this.v = unit(B-A);
           	this.P = A;
         }
+      	this.extendA = extendA;
+      	this.extendB = extendB;
     }
   
   	void redirect() {
@@ -139,16 +146,21 @@ struct line3 {
     }
   
   	path3 getLine() {
-      	path3 s = P--(P+v);
-    	return scale3(1/EPS, midpoint(s))*s;
+      	triple B=beginpoint(base), E=endpoint(base), M=midpoint(base);
+      	if (extendA && extendB) return scale3(1/EPS, M)*base;
+      	if (extendA) return scale3(10, E)*base;
+      	if (extendB) return scale3(1/EPS, B)*base;
+      	return base;
     }
-  
-  	line3 copy() { return this; }
 }
 
-line3 line3(triple v, triple P, bool vec=false) {
-	line3 l; l.init(v, P, vec);
+line3 line3(triple P, bool extendA=true, triple v, bool extendB=true, bool vec=false) {
+	line3 l; l.init(P, extendA, v, extendB, vec);
   	return l;
+}
+
+line3 copy(line3 l) { 
+  return line3(l.P, l.extendA, l.v, l.extendB, true);
 }
 
 bool inplane(plane p, line3 l) {
@@ -156,9 +168,10 @@ bool inplane(plane p, line3 l) {
 }
 
 bool parallel(line3 l1, line3 l2) {
-  	if (l1.v.x < 0) l1.redirect();
-    if (l2.v.x < 0) l2.redirect();
-	return l1.v == l2.v;
+  	line3 L1 = copy(l1), L2 = copy(l2);
+  	if (L1.v.x < 0) L1.redirect();
+    if (L2.v.x < 0) L2.redirect();
+	return L1.v == L2.v;
 }
 
 bool crossing(line3 l1, line3 l2) {
@@ -447,8 +460,59 @@ triple[] tangents(circle3 c, triple P) {
 } 
 
 
+struct segment3 {
+	restricted triple A,B,v;
+  	restricted path3 base;
+  
+  	void init(triple A, triple B) {
+        base = A--B;
+      	this.A = A; 
+      	this.B = B;
+        this.v = unit(B-A);
+    }
+  
+  	void redirect() {
+    	v *= -1;
+    }
+  	
+  	path3 getPath() {
+    	return base;
+    }
+  
+}
+
+segment3 segment3(triple A, triple B) {
+	segment3 s; s.init(A,B);
+  	return s;
+}
+
+segment3 copy(segment3 s) { 
+  return segment3(s.A, s.B);
+}
+
+line3 line3(segment3 s, bool extendA=true, bool extendB=true) {
+	return line3(s.A, extendA, s.B, extendB);
+}
+
+bool inplane(plane p, segment3 s) {
+  	return inplane(p, line3(s));
+}
+
+bool parallel(segment3 l1, segment3 l2) {
+  	return parallel(line3(l1), line3(l2));
+}
+
+triple intersectionpoint(segment3 s1, segment3 s2, real fuzz=-1) {
+  	line3 l1 = line3(s1), l2 = line3(s2);
+	if (parallel(l1,l2) || crossing(l1,l2)) abort("segments do not intersect");
+  	plane p = plane(l1,l2);
+  	triple i = intersectionpoint(s1.getPath(), s2.getPath(), fuzz);
+  	return projection(p, i);
+}
+
+
 void markrightangle(triple A, triple B, triple C, real size = 1, pen p = currentpen, pen fillpen = nullpen, light light = currentlight) {
-	triple R1 = size*unit(A-B)/25, R2 = size*unit(C-B)/25;
+	triple R1 = size*unit(A-B)/6, R2 = size*unit(C-B)/6;
   	path3 rightAnglePath = (B + R1) -- (B + R1 + R2) -- (B + R2);
     path3 fillPath = (B + R1) -- (B + R1 + R2) -- (B + R2) -- B -- cycle;
     draw(rightAnglePath, p);

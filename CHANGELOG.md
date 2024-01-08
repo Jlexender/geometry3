@@ -167,3 +167,31 @@ In this procedures, __radius__ and __space__ are coefficients of scaling.
 ### Fixed
 
 - intersectionpoint(line3 l1, line3 l2) function (less calculation errors now)
+
+## [beta 1.3] - 2024-01-08
+
+### Changed
+
+__line3__ initialization now includes __extendA, extendB__ booleans, so line3 can create semi-lines.
+
+- line3 line3(triple P, bool extendA=true, triple v, bool extendB=true, bool vec=false)
+
+### Fixed
+
+- bool parallel(line3 l1, line3 l2) now doesn't affect on l1.v, l2.v
+- void markrightangle( ... ): fixed marker size
+
+### Added
+
+- bool operator !=(plane p1, plane p2)
+
+Structure __segment3__ and functions for it:
+
+- path3 segment3.getPath()
+- segment3 segment3(triple A, triple B)
+- segment3 copy(segment3 s)
+- line3 line3(segment3 s, bool extendA=true, bool extendB=true)
+- bool inplane(plane p, segment3 s)
+- bool parallel(segment3 l1, segment3 l2)
+- triple intersectionpoint(segment3 s1, segment3 s2, real fuzz=-1)
+
