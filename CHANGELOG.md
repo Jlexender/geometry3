@@ -195,3 +195,9 @@ Structure __segment3__ and functions for it:
 - bool parallel(segment3 l1, segment3 l2)
 - triple intersectionpoint(segment3 s1, segment3 s2, real fuzz=-1)
 
+## [beta 1.31] - 2024-01-08
+
+### Fixed
+
+- void markangle( ... ): fixed marker size
+
