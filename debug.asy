@@ -547,7 +547,7 @@ struct sphere3 {
     }
   
   	path3[] getPath() {
-      	triple n1 = p.camera-p.target;      
+      	triple n1 = p.camera-p.target;     
     	circle3 c1 = circle3(O, r, n1);     	
       	line3 l = line3(O, O+p.up); 
       	line3 l_c = projection(c1.getPlane(), l);
@@ -555,7 +555,10 @@ struct sphere3 {
 		real delta = n1.x < 0 ? 15 : -15;
       	triple P_rot = rotate(delta, O, O+pl.n)*(O+unit(l_c.v)*r);      
       	circle3 c2 = circle3(O, r, P_rot-O);
-      	return c1.getPath()^^c2.getPath();
+      	triple[] i = intersectionpoints(c1.getPath(), c2.getPath());
+      	path3 front = n1.x > 0 ? arc(O, i[0], i[1], c2.getPlane().n) : arc(O, i[1], i[0], c2.getPlane().n), back = n1.x < 0 ? arc(O, i[0], i[1], c2.getPlane().n) : arc(O, i[1], i[0], c2.getPlane().n);
+      
+      	return c1.getPath()^^front^^back;
     }
 }
 
@@ -563,6 +566,13 @@ sphere3 sphere3(triple O=(0,0,0), real r=1, projection p=currentprojection) {
 	sphere3 s;
   	s.init(O, r, p);
   	return s;
+}
+
+void draw(picture pic=currentpicture, explicit sphere3 s, material p1=currentpen, material p2=p1, margin3 margin=NoMargin3, light light=nolight, string name="", render render=defaultrender) {
+  	path3[] p = s.getPath();
+  	draw(pic, p[0], p1, margin, light, name, render);
+  	draw(pic, p[1], p2, margin, light, name, render);
+    draw(pic, p[2], (pen)p2+dashed, margin, light, name, render);
 }
 
 
@@ -577,7 +587,7 @@ label("$X$", X, W);
 label("$Y$", Y, E);
 label("$Z$", Z, N);
 
-currentprojection = orthographic(1,2,3);
+currentprojection = orthographic(1,1,1);
 
 // currentprojection = orthographic(-3,-4,5); // is upper than expected
 
@@ -585,6 +595,7 @@ projection cp = currentprojection;
 
 triple n = (cp.camera - cp.target);
 
-sphere3 s = sphere3((1,1,1),3);
-draw(s.getPath(), red);
+sphere3 s = sphere3((1,1,1),1);
+draw(s, red);
+
 
