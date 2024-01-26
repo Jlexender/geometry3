@@ -82,6 +82,7 @@ struct plane {
   	real calculate(triple P) {
     	return P.x*a + P.y*b + P.z*c + d;
     }
+  
 }
 
 bool operator ==(plane p1, plane p2) {
@@ -568,6 +569,13 @@ sphere3 sphere3(triple O=(0,0,0), real r=1, projection p=currentprojection) {
   	return s;
 }
 
+sphere3 sphere3(triple O=(0,0,0), plane pl, projection p=currentprojection) {
+	real r = distance(O, pl);
+  	sphere3 s;
+  	s.init(O, r, p);
+  	return s;
+}
+
 void draw(picture pic=currentpicture, explicit sphere3 s, material p1=currentpen, material p2=p1, margin3 margin=NoMargin3, light light=nolight, string name="", render render=defaultrender) {
   	path3[] p = s.getPath();
   	draw(pic, p[0], p1, margin, light, name, render);
@@ -587,7 +595,7 @@ label("$X$", X, W);
 label("$Y$", Y, E);
 label("$Z$", Z, N);
 
-currentprojection = orthographic(1,1,1);
+currentprojection = orthographic(2,2,2);
 
 // currentprojection = orthographic(-3,-4,5); // is upper than expected
 
@@ -598,4 +606,9 @@ triple n = (cp.camera - cp.target);
 sphere3 s = sphere3((1,1,1),1);
 draw(s, red);
 
+plane p = plane(X,Y,Z);
+
+sphere3 s2 = sphere3((1,1,1), p);
+draw(s2, blue);
+draw(surface(X--Y--Z--cycle), blue+opacity(0.2), nolight);
 
